@@ -1,0 +1,37 @@
+#!/usr/bin/python
+#-*-coding:utf-8-*-
+import scrapy
+from scrapy.selector import Selector
+import re, json
+from pyquery import PyQuery as pq
+from lxml.html import tostring
+import codecs
+from helloworld.items import CarShowItem
+
+class baiduSpider(scrapy.Spider):
+   name = 'baidu'
+   start_urls =  [
+           "https://www.baidu.com/s?wd=%E5%8C%97%E4%BA%AC%E8%BD%A6%E5%B1%95&rsv_spt=1&rsv_iqid=0xd621d4b20000e9f0&issp=1&f=8&rsv_bp=0&rsv_idx=2&ie=utf-8&tn=baiduhome_pg&rsv_enter=1&rsv_sug3=10&rsv_sug1=9&rsv_sug7=100&rsv_sug2=0&inputT=25288&rsv_sug4=25289"
+           ]
+
+   def parse(self, response):
+       #print response.body
+       #with open("baidu.html", 'wb') as f:
+       #    f.write(response.body)
+       n = 1
+       cars = []
+       content_divs = response.xpath("//div[@id='content_left']/div[@id]")
+                  #sites = sel.xpath("//div[@id='content_left']/div[@id]")
+       for div in content_divs:
+           print "==========item %s========" % n
+           n = n + 1
+           #print div.xpath('.//h3/a/text()').extract()
+           title = div.xpath('.//h3/a/text()').extract()
+           #print div.xpath('.//h3/a/@href').extract()
+           url = div.xpath('.//h3/a/@href').extract()
+           #print div.xpath('.//div[@class="c-abstract"]/text()').extract()
+           desc = div.xpath('.//div[@class="c-abstract"]/text()').extract()
+
+           car = CarShowItem(title = title, description = desc, url = url)
+           cars.append(car)
+       return cars

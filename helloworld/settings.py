@@ -13,7 +13,7 @@ BOT_NAME = 'helloworld'
 SPIDER_MODULES = ['helloworld.spiders']
 NEWSPIDER_MODULE = 'helloworld.spiders'
 DOWNLOADER_MIDDLEWARES = {
-   # "helloworld.middleware.UserAgentMiddleware": 401,
+    "helloworld.middleware.UserAgentMiddleware": 401,
    # "helloworld.middleware.CookiesMiddleware": 402,
 }
 

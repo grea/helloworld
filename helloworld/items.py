@@ -8,7 +8,9 @@
 import scrapy
 
 
-class HelloworldItem(scrapy.Item):
+class CarShowItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+    title = scrapy.Field()
+    description = scrapy.Field()
+    url = scrapy.Field()
