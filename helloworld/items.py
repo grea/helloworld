@@ -14,3 +14,7 @@ class CarShowItem(scrapy.Item):
     title = scrapy.Field()
     description = scrapy.Field()
     url = scrapy.Field()
+
+class WeiboItem(scrapy.Item):
+    url = scrapy.Field()
+    raw = scrapy.Field()
