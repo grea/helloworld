@@ -28,7 +28,7 @@ class helloSpider(scrapy.Spider):
             print "*************"
             html = json.loads(weibomatch.group())['html']
             #Save weibo HTML
-            #weiboitem = WeiboItem(raw= html)
+            weiboitem = WeiboItem(raw= html)
             #with codecs.open ('weibo.html', 'wb', 'utf8') as f:               
             #    f.write(html)
             #print html
