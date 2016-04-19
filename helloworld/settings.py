@@ -15,8 +15,9 @@ NEWSPIDER_MODULE = 'helloworld.spiders'
 COOKIES_ENABLED=False
 DOWNLOAD_DELAY = 3
 DOWNLOADER_MIDDLEWARES = {
-    "helloworld.middleware.UserAgentMiddleware": 401,
+   # "helloworld.middleware.UserAgentMiddleware": 401,
    # "helloworld.middleware.CookiesMiddleware": 402,
+   "helloworld.misc.middleware.CustomUserAgentMiddleware": 402
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
