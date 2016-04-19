@@ -38,7 +38,9 @@ class baiduSpider(scrapy.Spider):
                continue
            car = CarShowItem(title = title, description = desc, url = url)           
            yield car
-           yield Request("".join(url), meta={'item': car},callback=self.parse_detail, )
+           yield Request("".join(url), meta={'item': car, 'dont_redirect': True,
+                        'handle_httpstatus_list':[302]},
+                         callback=self.parse_detail, )
            #cars.append(car)
        #return cars
        pages = response.xpath("//div[@id='page']/a")
@@ -60,9 +62,18 @@ class baiduSpider(scrapy.Spider):
 
 
    def parse_detail(self, response):
+        redirection_url = response.headers.get('location')
         car = response.meta['item']
-        detail = DetailItem(title=car['title'], url=car['url'], raw=response.body)
-        print detail
-        yield detail
+        if redirection_url == None:
+            detail = DetailItem(title=car['title'], url=car['url'], raw=response.body)
+            #print detail
+            yield detail
+        else:
+            yield Request(redirection_url, meta={'item': car},callback=self.parse_redirect)
+
+   def parse_redirect(self, response):
+       car = response.meta['item']
+       detail = DetailItem(title=car['title'], url=car['url'], raw=response.body)
+       yield detail
         
 
