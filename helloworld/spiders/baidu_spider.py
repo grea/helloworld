@@ -17,30 +17,23 @@ class baiduSpider(scrapy.Spider):
            #"https://www.baidu.com/s?wd=scrapy%20shell%E8%AE%BE%E7%BD%AEuser%20agent&pn=60&oq=scrapy%20shell%E8%AE%BE%E7%BD%AEuser%20agent&ie=utf-8&rsv_pq=b0aa184900183467&rsv_t=d56cOy5hF0aPnkSY3C%2BX9VIY57sy3fVMXpgr%2Bm0l63vhYqhzhHH0odL%2BBGw"
            ]
 
+   urlregex = re.compile(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", re.IGNORECASE)
    def parse(self, response):
-       #print response.body
-       #with open("baidu.html", 'wb') as f:
-       #    f.write(response.body)
        n = 1
-       cars = []
        content_divs = response.xpath("//div[@id='content_left']/div[@id]")
-                  #sites = sel.xpath("//div[@id='content_left']/div[@id]")
        for div in content_divs:
-           print "==========item %s========" % n
+           #print "==========item %s========" % n
            n = n + 1
            #print div.xpath('.//h3/a/text()').extract()
-           title = div.xpath('.//h3/a/text()').extract()
+           #title = div.xpath('.//h3/a/text()').extract()
            #print div.xpath('.//h3/a/@href').extract()
            url = div.xpath('.//h3/a/@href').extract()
            #print div.xpath('.//div[@class="c-abstract"]/text()').extract()
-           desc = div.xpath('.//div[@class="c-abstract"]/text()').extract()
+           #desc = div.xpath('.//div[@class="c-abstract"]/text()').extract()
            if len(url) == 0:
                continue
-           car = CarShowItem(title = title, description = desc, url = url)           
-           yield car
-           yield Request("".join(url), meta={'item': car, 'dont_redirect': True,
-                        'handle_httpstatus_list':[302]},
-                         callback=self.parse_detail, )
+           yield Request("".join(url),meta={'dont_redirect':True, 'handle_httpstatus_list':[302]}, 
+                         callback=self.parse_detail )
            #cars.append(car)
        #return cars
        pages = response.xpath("//div[@id='page']/a")
@@ -48,14 +41,14 @@ class baiduSpider(scrapy.Spider):
        pageindex = 1
        for page in pages:
            if len(page.xpath('text()').extract()) == 0:
-               print 'index page'
+               #print 'index page'
+               pass
            else:
                print 'next page'
                #print page.xpath('text()').extract()
                #print page.xpath('@href').extract()
                if pageindex > 1:
                    nexturl = "http://www.baidu.com" + "".join(page.xpath('@href').extract())
-                   print nexturl
                    yield Request(nexturl, callback=self.parse)
                    break
            pageindex = pageindex + 1
@@ -63,17 +56,41 @@ class baiduSpider(scrapy.Spider):
 
    def parse_detail(self, response):
         redirection_url = response.headers.get('location')
-        car = response.meta['item']
         if redirection_url == None:
-            detail = DetailItem(title=car['title'], url=car['url'], raw=response.body)
-            #print detail
+            print "get sub details with direct"
+            title = response.xpath('//title/text()').extract()
+            title = title[0].encode('utf8')
+            raw = u''
+            try:
+                raw = response.body.decode('utf8')
+            except UnicodeDecodeError, e:
+                raw = response.body.decode('gbk')
+
+            detail = DetailItem(title=title, url=response.url, raw=raw)
+            #detail = DetailItem(title=title, url=response.url)
             yield detail
         else:
-            yield Request(redirection_url, meta={'item': car},callback=self.parse_redirect)
+            if self.urlregex.match(redirection_url) != None:
+                print "====Request a redirect url"
+                yield Request(redirection_url, callback=self.parse_redirect)
 
    def parse_redirect(self, response):
-       car = response.meta['item']
-       detail = DetailItem(title=car['title'], url=car['url'], raw=response.body)
+       print "*********get sub details with redirect"
+       title = response.xpath('//title/text()').extract()
+       title = title[0].encode('utf8')
+       try:
+           raw = response.body.decode('utf8')
+       except UnicodeDecodeError, e:
+           raw = ''
+       if len(raw) == 0:
+           try:
+               raw = response.body.decode('gbk')
+           except UnicodeDecodeError, e:
+               raw = ''
+       if len(raw) == 0:
+           raw = response.body
+       detail = DetailItem(title=title, url=response.url, raw=raw)
+       #detail = DetailItem(title=title, url=response.url)
        yield detail
         
 
