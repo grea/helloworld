@@ -60,7 +60,13 @@ class baiduSpider(scrapy.Spider):
         #parse the charset of the response body
         rawcode = 'utf8'
         for meta in metaDatas:
-            rawCodeMatch = re.search(r'(charset=(\w+|\W+)*)', meta)
+            '''the meta data like this 
+               <meta http-equiv="content-type" content="text/html;charset=gbk" />
+               Or
+               <meta charset="UTF-8">
+               
+            '''
+            rawCodeMatch = re.search(r'(charset=(\w+|\W+)*\b)', meta)
             if rawCodeMatch:
                 charsets = rawCodeMatch.group().split('=')
                 if len(charsets) == 2:
