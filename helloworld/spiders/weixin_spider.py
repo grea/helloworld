@@ -32,8 +32,8 @@ class weixinSpider(scrapy.Spider):
    def parse_detail(self, response):
        title = response.xpath('//title/text()').extract()
        title = title[0].encode('utf8')
-       raw = response.body.decode('utf8')
-       detail = DetailItem(title=title, url=response.url, raw=raw)
+       raw = response.body
+       detail = DetailItem(title=title, url=response.url, raw=raw, rawcode='utf8')
        yield detail
 
    def parse_redirect(self, response):

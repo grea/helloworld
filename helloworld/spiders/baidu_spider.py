@@ -44,33 +44,44 @@ class baiduSpider(scrapy.Spider):
                #print 'index page'
                pass
            else:
-               print 'next page'
+               #print 'next page'
                #print page.xpath('text()').extract()
                #print page.xpath('@href').extract()
                if pageindex > 1:
+                   print ">>>>>>>>>Request next page..."
                    nexturl = "http://www.baidu.com" + "".join(page.xpath('@href').extract())
                    yield Request(nexturl, callback=self.parse)
                    break
            pageindex = pageindex + 1
 
+   def parse_rawcode(self, response):
+        rawcode = 'utf8'
+        metaDatas = response.xpath('//meta').extract()
+        #parse the charset of the response body
+        rawcode = 'utf8'
+        for meta in metaDatas:
+            rawCodeMatch = re.search(r'(charset=(\w+|\W+)*)', meta)
+            if rawCodeMatch:
+                charsets = rawCodeMatch.group().split('=')
+                if len(charsets) == 2:
+                    rawcode = charsets[1]
+        return rawcode
 
    def parse_detail(self, response):
-        redirection_url = response.headers.get('location')
-        if redirection_url == None:
+        if response.status == 200:
             print "get sub details with direct"
             title = response.xpath('//title/text()').extract()
             title = title[0].encode('utf8')
-            raw = u''
-            try:
-                raw = response.body.decode('utf8')
-            except UnicodeDecodeError, e:
-                raw = response.body.decode('gbk')
-
-            detail = DetailItem(title=title, url=response.url, raw=raw)
-            #detail = DetailItem(title=title, url=response.url)
+            rawcode = self.parse_rawcode(response)
+            raw = response.body
+            #detail = DetailItem(title=title, url=response.url, raw=raw, rawcode=rawcode)
+            detail = DetailItem(title=title, url=response.url, rawcode=rawcode)
             yield detail
         else:
-            if self.urlregex.match(redirection_url) != None:
+            redirection_url = response.headers.get('location')
+            if redirection_url == response.url:
+                print "redirect url as same as prev request"
+            elif self.urlregex.match(redirection_url) != None:
                 print "====Request a redirect url"
                 yield Request(redirection_url, callback=self.parse_redirect)
 
@@ -78,19 +89,10 @@ class baiduSpider(scrapy.Spider):
        print "*********get sub details with redirect"
        title = response.xpath('//title/text()').extract()
        title = title[0].encode('utf8')
-       try:
-           raw = response.body.decode('utf8')
-       except UnicodeDecodeError, e:
-           raw = ''
-       if len(raw) == 0:
-           try:
-               raw = response.body.decode('gbk')
-           except UnicodeDecodeError, e:
-               raw = ''
-       if len(raw) == 0:
-           raw = response.body
-       detail = DetailItem(title=title, url=response.url, raw=raw)
-       #detail = DetailItem(title=title, url=response.url)
+       raw = response.body
+       rawcode = self.parse_rawcode(response)
+       #detail = DetailItem(title=title, url=response.url, raw=raw, rawcode=rawcode)
+       detail = DetailItem(title=title, url=response.url, rawcode=rawcode)
        yield detail
         
 

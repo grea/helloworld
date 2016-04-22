@@ -19,7 +19,8 @@ class WeiboItem(scrapy.Item):
     url = scrapy.Field()
     raw = scrapy.Field()
 
-class DetailItem(scrapy.Item):
+class DetailItem(scrapy.Item):    
     title = scrapy.Field()
     raw = scrapy.Field()
+    rawcode = scrapy.Field()
     url = scrapy.Field()
