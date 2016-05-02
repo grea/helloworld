@@ -2,6 +2,7 @@
 import random
 from cookies import cookies
 from user_agents import agents
+from weixincookies import weixincookies
 
 
 class UserAgentMiddleware(object):
@@ -16,5 +17,5 @@ class CookiesMiddleware(object):
     """ 换Cookie """
 
     def process_request(self, request, spider):
-        cookie = random.choice(cookies)
+        cookie = random.choice(weixincookies)
         request.cookies = cookie
