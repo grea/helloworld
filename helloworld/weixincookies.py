@@ -1,12 +1,21 @@
 # encoding=utf-8
 import json
 import requests
+import math
+import random
 
 myWeixin = [
     {'no': '18518986909', 'psw': '2016@sogou.com'},
     #{'no': 'shudieful3618@163.com', 'psw': 'a123456'},
 ]
 
+def get_wxltoken():
+    def s4():
+        s = "%4x" % math.floor((1 + random.random()) * 65536)
+        return s[1::]
+    token = "%s%s%s%s%s%s%s%s" % (s4(), s4(), s4(), s4(), s4(), s4(), s4(), s4())
+    print "=======%s========" % token
+    return token
 
 def getCookies(weixin):
     """ 获取Cookies """
@@ -22,7 +31,8 @@ def getCookies(weixin):
     		'captcha':'',
     		'client_id':'2017',
     		'xd':'http://www.sogou.com/jump.htm',
-    		'token':'a82d5f0a78f321f1dc10534f33f9e118'
+                'token':get_wxltoken
+                
         }
         session = requests.Session()
         r = session.post(loginURL, data=postData)
@@ -41,3 +51,4 @@ def getCookies(weixin):
 
 weixincookies = getCookies(myWeixin)
 print "Get Cookies Finish!( Num:%d)" % len(weixincookies)
+print "token is %s " % get_wxltoken()
