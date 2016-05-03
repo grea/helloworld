@@ -24,3 +24,5 @@ class DetailItem(scrapy.Item):
     raw = scrapy.Field()
     rawcode = scrapy.Field()
     url = scrapy.Field()
+    readnum = scrapy.Field()
+    likenum = scrapy.Field()

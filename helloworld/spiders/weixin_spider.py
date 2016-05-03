@@ -1,5 +1,7 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
+import re
+import json
 import scrapy
 from scrapy.selector import Selector
 from scrapy.http import Request
@@ -22,10 +24,12 @@ class weixinSpider(scrapy.Spider):
            yield Request(link.url, meta={'dont_redirect':True, 'handle_httpstatus_list':[302]},
                          callback=self.parse_detail)
        #Request the next page
+       #print response.request.headers
        nextPageUrls = items = LinkExtractor(allow=('query'),
                               restrict_xpaths=('//div[@id="pagebar_container"]/a[@id="sogou_next"]')) \
                               .extract_links(response)
        if len(nextPageUrls) > 0:
+           print nextPageUrls[0].text
            yield Request(nextPageUrls[0].url, callback=self.parse)
 
        
@@ -34,10 +38,19 @@ class weixinSpider(scrapy.Spider):
        title = title[0].encode('utf8')
        raw = response.body
        detail = DetailItem(title=title, url=response.url, raw=raw, rawcode='utf8')
-       yield detail
+       #yield detail
+       links = re.split(r'\?',response.url)
+       readAndlikeUrl =  "%smp/getcomment?%s" % (links[0][:-1], links[1])
+       yield Request(readAndlikeUrl, meta={'item':detail}, callback=self.parse_rl)
 
-   def parse_redirect(self, response):
-       pass
-       
+   def parse_rl(self, response):
+       item = response.meta['item']
+       res = json.loads(response.body)
+       if res['base_resp']['ret']  == 0:
+           finaldetail = DetailItem(title=item['title'], url=item['url'], raw=item['raw'], rawcode='utf8',
+                                    readnum = res['read_num'], likenum=res['like_num'])
+           yield finaldetail
+       else:
+           yield item
         
 
