@@ -4,9 +4,6 @@ import scrapy
 from scrapy.selector import Selector
 from scrapy.http import Request
 import re, json
-from pyquery import PyQuery as pq
-from lxml.html import tostring
-import codecs
 from helloworld.items import CarShowItem
 from helloworld.items import DetailItem
 
