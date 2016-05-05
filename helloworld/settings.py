@@ -12,12 +12,12 @@ BOT_NAME = 'helloworld'
 
 SPIDER_MODULES = ['helloworld.spiders']
 NEWSPIDER_MODULE = 'helloworld.spiders'
-COOKIES_ENABLED=False
-DOWNLOAD_DELAY = 3
+#COOKIES_ENABLED=False
+DOWNLOAD_DELAY = 8
 DOWNLOADER_MIDDLEWARES = {
    # "helloworld.middleware.UserAgentMiddleware": 401,
-   # "helloworld.middleware.CookiesMiddleware": 402,
-   "helloworld.misc.middleware.CustomUserAgentMiddleware": 402
+    "helloworld.middleware.CookiesMiddleware": 402,
+   "helloworld.misc.middleware.CustomUserAgentMiddleware": 401
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
