@@ -26,3 +26,5 @@ class DetailItem(scrapy.Item):
     url = scrapy.Field()
     readnum = scrapy.Field()
     likenum = scrapy.Field()
+class youkuItem(scrapy.Item):
+    media = scrapy.Field()
